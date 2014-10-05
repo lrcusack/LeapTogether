@@ -24,7 +24,7 @@ Watch and repeat after me.
 
 <script>
 
-  var dataRef = new Firebase("https://radiant-inferno-7480.firebaseio.com/");
+  var dataRef = new Firebase("https://burning-torch-7908.firebaseio.com/");
   //https://burning-torch-7908.firebaseio.com/
   var data = dataRef.child("LeapMotion");
   var i = 0;
@@ -50,19 +50,24 @@ function fix_frame(frame) {
       }
     }
   }
-  for (var j = 0; j < frame["hands"][0]["pointables"].length; j++) {
-    reverse_references1 = ["metacarpal", "proximal", "medial", "distal", "frame"]
-    reverse_references1.forEach(function(x){
-      if (x == "frame") {
-        frame["hands"][0]["pointables"][j][x] = null;
-        frame["hands"][0][x] = null;
-      } else {
-        frame["hands"][0]["pointables"][j][x]["finger"] = null;
-      }
-    })
+  for (var k = 0; k < frame["hands"].length; k++) {
+    for (var j = 0; j < frame["hands"][0]["pointables"].length; j++) {
+      reverse_references1 = ["metacarpal", "proximal", "medial", "distal", "frame"]
+      reverse_references1.forEach(function(x){
+        if (x == "frame") {
+          frame["hands"][k]["pointables"][j][x] = null;
+          frame["hands"][k][x] = null;
+        } else {
+          frame["hands"][k]["pointables"][j][x]["finger"] = null;
+        }
+      })
+    }
   }
   //frame["controller"]["onAnimationFrame"] = null;
   //frame["controller"]["history"]["_buf"][0] = null;
+  if (frame["fingers"].length == 6) {
+    frame["fingers"][5]["metacarpal"]["finger"] = null;
+  }
 }
 
   function onFrame(frame) {
@@ -71,7 +76,6 @@ function fix_frame(frame) {
       console.log(frame);
 
       data.set({
-        fingers : frame["fingers"],
         hands : frame["hands"]
       });
 

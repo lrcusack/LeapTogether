@@ -24,64 +24,11 @@ Watch and repeat after me.
 
 <script>
 
-  var dataRef = new Firebase("https://radiant-inferno-7480.firebaseio.com/");
+  var dataRef = new Firebase("https://burning-torch-7908.firebaseio.com/");
   //https://burning-torch-7908.firebaseio.com/
   var data = dataRef.child("LeapMotion");
   var i = 0;
 
-function fix_frame(frame) {
-  for (var key1 in frame) {
-    if (frame[key1] === undefined) {
-      frame[key1] = null;
-    }
-    for (var key2 in frame[key1]) {
-      if (frame[key1][key2] === undefined) {
-        frame[key1][key2] = null;
-      }
-      for (var key3 in frame[key1][key2]) {
-        if (frame[key1][key2][key3] === undefined) {
-          frame[key1][key2][key3] = null;
-        }
-        for (var key4 in frame[key1][key2][key3]) {
-          if (frame[key1][key2][key3][key4] === undefined) {
-            frame[key1][key2][key3][key4] = null;
-          }
-        }
-      }
-    }
-  }
-  for (var j = 0; j < frame["hands"][0]["pointables"].length; j++) {
-    reverse_references1 = ["metacarpal", "proximal", "medial", "distal", "frame"]
-    reverse_references1.forEach(function(x){
-      if (x == "frame") {
-        frame["hands"][0]["pointables"][j][x] = null;
-        frame["hands"][0][x] = null;
-      } else {
-        frame["hands"][0]["pointables"][j][x]["finger"] = null;
-      }
-    })
-  }
-  //frame["controller"]["onAnimationFrame"] = null;
-  //frame["controller"]["history"]["_buf"][0] = null;
-}
-
-  function onFrame(frame) {
-    if (i % 100 == 0) {
-      fix_frame(frame);
-      console.log(frame);
-
-      data.set({
-        fingers : frame["fingers"],
-        hands : frame["hands"]
-      });
-
-      //console.log(frame.pointables);
-      console.log(i);
-      i++;
-    } else {
-      i++;
-    }
-  }
 
   var baseBoneRotation = (new THREE.Quaternion).setFromEuler(
       new THREE.Euler(Math.PI / 2, 0, 0)
