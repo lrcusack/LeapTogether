@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>LeapMotion Output - In Progress</title>
+  <title>LeapMotion Input</title>
   <script src="three.js"></script>
   <script src="leap-0.6.2.min.js"></script>
   <script src="leap-plugins-0.1.6.1.min.js"></script>
@@ -70,15 +70,19 @@ function fix_frame(frame) {
   }
 }
 
+  var writeComplete = true;
+
   function onFrame(frame) {
-    if (i % 100 == 0) {
+    if (writeComplete) {
       fix_frame(frame);
       console.log(frame);
-
+      writeComplete = false;
       data.set({
         hands : frame["hands"]
-      });
-
+        }, function() {
+        writeComplete = true;
+        })
+      ;
       //console.log(frame.pointables);
       console.log(i);
       i++;
@@ -92,7 +96,9 @@ function fix_frame(frame) {
   );
 
 
-  Leap.loop({background: true}, {
+  Leap.loop(
+    /*
+    {background: true}, {
     hand: function (hand) {
       hand.fingers.forEach(function (finger) {
         // This is the meat of the example - Positioning `the cylinders on every frame:
@@ -120,10 +126,13 @@ function fix_frame(frame) {
 
     renderer.render(scene, camera);
 
-  }})
+  }}
+  */
+  )
     // these two LeapJS plugins, handHold and handEntry are available from leapjs-plugins, included above.
     // handHold- provides hand.data
     // handEntry provides handFound/handLost events.
+  /*
   .use('handHold')
   
   .use('handEntry')
@@ -175,9 +184,7 @@ function fix_frame(frame) {
     });
     renderer.render(scene, camera);
   })
-  
-
-  
+  */
   .use('playback', {
     // This is a compressed JSON file of preprecorded frame data
     recording: './complex_sample.json',
