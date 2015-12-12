@@ -73,7 +73,11 @@ function fix_frame(frame) {
   var writeComplete = true;
 
   function onFrame(frame) {
+<<<<<<< Updated upstream
     if (writeComplete) {
+=======
+    if (i % 10 == 0) {
+>>>>>>> Stashed changes
       fix_frame(frame);
       console.log(frame);
       writeComplete = false;
@@ -94,7 +98,6 @@ function fix_frame(frame) {
   var baseBoneRotation = (new THREE.Quaternion).setFromEuler(
       new THREE.Euler(Math.PI / 2, 0, 0)
   );
-
 
   Leap.loop(
     /*
@@ -138,51 +141,12 @@ function fix_frame(frame) {
   .use('handEntry')
   
   .on('handFound', function(hand){
-    hand.fingers.forEach(function (finger) {
-      var boneMeshes = [];
-      var jointMeshes = [];
-      finger.bones.forEach(function(bone) {
-        // create joints
-        // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
-        var boneMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(5, 5, bone.length),
-            new THREE.MeshPhongMaterial()
-        );
-        boneMesh.material.color.setHex(0xffffff);
-        scene.add(boneMesh);
-        boneMeshes.push(boneMesh);
-      });
-      for (var i = 0; i < finger.bones.length + 1; i++) {
-        var jointMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(8),
-            new THREE.MeshPhongMaterial()
-        );
-        jointMesh.material.color.setHex(0x0088ce);
-        scene.add(jointMesh);
-        jointMeshes.push(jointMesh);
-      }
-      finger.data('boneMeshes', boneMeshes);
-      finger.data('jointMeshes', jointMeshes);
-    });
-  })
+    //plotHand(hand);
+    })
 
   .on('handLost', function(hand){
 
-    hand.fingers.forEach(function (finger) {
-      var boneMeshes = finger.data('boneMeshes');
-      var jointMeshes = finger.data('jointMeshes');
-      boneMeshes.forEach(function(mesh){
-        scene.remove(mesh);
-      });
-      jointMeshes.forEach(function(mesh){
-        scene.remove(mesh);
-      });
-      finger.data({
-        boneMeshes: null,
-        boneMeshes: null
-      });
-    });
-    renderer.render(scene, camera);
+    
   })
   */
   .use('playback', {
@@ -238,6 +202,36 @@ function fix_frame(frame) {
 
     renderer.render(scene, camera);
   };
+
+  var plotHand = function(hand){
+    hand.fingers.forEach(function (finger) {
+      var boneMeshes = [];
+      var jointMeshes = [];
+      finger.bones.forEach(function(bone) {
+        // create joints
+        // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
+        var boneMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(5, 5, bone.length),
+            new THREE.MeshPhongMaterial()
+        );
+        boneMesh.material.color.setHex(0xffffff);
+        scene.add(boneMesh);
+        boneMeshes.push(boneMesh);
+      });
+      for (var i = 0; i < finger.bones.length + 1; i++) {
+        var jointMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(8),
+            new THREE.MeshPhongMaterial()
+        );
+        jointMesh.material.color.setHex(0x0088ce);
+        scene.add(jointMesh);
+        jointMeshes.push(jointMesh);
+      }
+      finger.data('boneMeshes', boneMeshes);
+      finger.data('jointMeshes', jointMeshes);
+    });
+  
+  }
 
   initScene();
 </script>

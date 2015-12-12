@@ -1,0 +1,200 @@
+<html>
+<head>
+  <title>LeapMotion Output - In Progress</title>
+  <script src="three.js"></script>
+  <script src="leap-0.6.2.min.js"></script>
+  <script src="leap-plugins-0.1.6.1.min.js"></script>
+  <script src="leap.rigged-hand-0.1.4.min.js"></script>
+  <script src="firebase.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="basic.css">
+</head>
+<body>
+
+<p class="blocktext" id="score">
+Watch and repeat after me.
+</p>
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+</body>
+
+<script>
+
+  var dataRef = new Firebase("https://burning-torch-7908.firebaseio.com/");
+  //https://burning-torch-7908.firebaseio.com/
+  var data = dataRef.child("LeapMotion");
+  var i = 0;
+
+function fix_frame(frame) {
+  for (var key1 in frame) {
+    if (frame[key1] === undefined) {
+      frame[key1] = null;
+    }
+    for (var key2 in frame[key1]) {
+      if (frame[key1][key2] === undefined) {
+        frame[key1][key2] = null;
+      }
+      for (var key3 in frame[key1][key2]) {
+        if (frame[key1][key2][key3] === undefined) {
+          frame[key1][key2][key3] = null;
+        }
+        for (var key4 in frame[key1][key2][key3]) {
+          if (frame[key1][key2][key3][key4] === undefined) {
+            frame[key1][key2][key3][key4] = null;
+          }
+        }
+      }
+    }
+  }
+  for (var k = 0; k < frame["hands"].length; k++) {
+    for (var j = 0; j < frame["hands"][0]["pointables"].length; j++) {
+      reverse_references1 = ["metacarpal", "proximal", "medial", "distal", "frame"]
+      reverse_references1.forEach(function(x){
+        if (x == "frame") {
+          frame["hands"][k]["pointables"][j][x] = null;
+          frame["hands"][k][x] = null;
+        } else {
+          frame["hands"][k]["pointables"][j][x]["finger"] = null;
+        }
+      })
+    }
+  }
+  //frame["controller"]["onAnimationFrame"] = null;
+  //frame["controller"]["history"]["_buf"][0] = null;
+  if (frame["fingers"].length == 6) {
+    frame["fingers"][5]["metacarpal"]["finger"] = null;
+  }
+}
+
+  function onFrame(frame) {
+    if (i % 10 == 0) {
+      fix_frame(frame);
+      console.log(frame);
+
+      data.set({
+        hands : frame["hands"]
+      });
+
+      //console.log(frame.pointables);
+      console.log(i);
+      i++;
+    } else {
+      i++;
+    }
+  }
+
+  var baseBoneRotation = (new THREE.Quaternion).setFromEuler(
+      new THREE.Euler(Math.PI / 2, 0, 0)
+  );
+
+
+  Leap.loop({background: true}, {})
+    // these two LeapJS plugins, handHold and handEntry are available from leapjs-plugins, included above.
+    // handHold- provides hand.data
+    // handEntry provides handFound/handLost events.
+  .use('handHold')
+  
+  .use('handEntry')
+  
+  .on('handFound', function(hand){
+    //plotHand(hand);
+    })
+
+  .on('handLost', function(hand){
+
+    
+  })
+  
+
+  
+  .use('playback', {
+    // This is a compressed JSON file of preprecorded frame data
+    recording: './complex_sample.json',
+    // How long, in ms, between repeating the recording.
+    overlay: false,
+    timeBetweenLoops: 2000,
+    pauseOnHand: true
+  })
+  
+  .on('frame', onFrame)
+  
+  .connect();
+  // HX: Works with .json.lz
+
+
+  // all units in mm
+  var initScene = function () {
+    window.scene = new THREE.Scene();
+    window.renderer = new THREE.WebGLRenderer({
+      alpha: true
+    });
+
+    window.renderer.setClearColor(0x000000, 0);
+    window.renderer.setSize(window.innerWidth, window.innerHeight);
+    window.renderer.domElement.style.position = 'fixed';
+    window.renderer.domElement.style.top = 0;
+    window.renderer.domElement.style.left = 0;
+    window.renderer.domElement.style.width = '100%';
+    window.renderer.domElement.style.height = '100%';
+
+    document.body.appendChild(window.renderer.domElement);
+
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    directionalLight.position.set( 0, 0.5, 1 );
+    window.scene.add(directionalLight);
+
+    window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    window.camera.position.fromArray([0, 150, 700]);
+    window.camera.lookAt(new THREE.Vector3(0, 160, 0));
+
+    window.addEventListener('resize', function () {
+
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.render(scene, camera);
+
+    }, false);
+
+    scene.add(camera);
+
+    renderer.render(scene, camera);
+  };
+
+  var plotHand = function(hand){
+    hand.fingers.forEach(function (finger) {
+      var boneMeshes = [];
+      var jointMeshes = [];
+      finger.bones.forEach(function(bone) {
+        // create joints
+        // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
+        var boneMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(5, 5, bone.length),
+            new THREE.MeshPhongMaterial()
+        );
+        boneMesh.material.color.setHex(0xffffff);
+        scene.add(boneMesh);
+        boneMeshes.push(boneMesh);
+      });
+      for (var i = 0; i < finger.bones.length + 1; i++) {
+        var jointMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(8),
+            new THREE.MeshPhongMaterial()
+        );
+        jointMesh.material.color.setHex(0x0088ce);
+        scene.add(jointMesh);
+        jointMeshes.push(jointMesh);
+      }
+      finger.data('boneMeshes', boneMeshes);
+      finger.data('jointMeshes', jointMeshes);
+    });
+  
+  }
+
+  initScene();
+</script>
+</html>

@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>Firebase Retrieval Test Output - In Progress</title>
+
+  <script src="firebase.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="basic.css">
+</head>
+<body>
+
+</body>
+
+<script>
+var postsRef = new Firebase("https://burning-torch-7908.firebaseio.com");
+// Attach an asynchronous callback to read the data at our posts reference
+postsRef.on('value', function (snapshot) {
+  console.log(snapshot.val().LeapMotion.hands);
+  obj = JSON.stringify(snapshot.val().LeapMotion);
+}, function (errorObject) {
+  console.log('The read failed: ' + errorObject.code);
+});
+</script>
+</html>

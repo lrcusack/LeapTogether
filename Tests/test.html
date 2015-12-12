@@ -55,23 +55,7 @@
   .on('handFound', function(hand){
 
     hand.fingers.forEach(function (finger) {
-
-      var boneMeshes = [];
-      var jointMeshes = [];
-
-      finger.bones.forEach(function(bone) {
-
-        // create joints
-
-        // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
-        var boneMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(5, 5, bone.length),
-            new THREE.MeshPhongMaterial()
-        );
-
-        boneMesh.material.color.setHex(0xffffff);
-        scene.add(boneMesh);
-        boneMeshes.push(boneMesh);
+        
       });
 
       for (var i = 0; i < finger.bones.length + 1; i++) {
@@ -120,6 +104,41 @@
 
   });
 
+  var plotHand = function (hand){
+    finger.bones.forEach(function(bone) {
+
+        // create joints
+
+        // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
+        var boneMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(5, 5, bone.length),
+            new THREE.MeshPhongMaterial()
+        );
+
+        boneMesh.material.color.setHex(0xffffff);
+        scene.add(boneMesh);
+        boneMeshes.push(boneMesh);
+      });
+
+      for (var i = 0; i < finger.bones.length + 1; i++) {
+
+        var jointMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(8),
+            new THREE.MeshPhongMaterial()
+        );
+
+        jointMesh.material.color.setHex(0x0088ce);
+        scene.add(jointMesh);
+        jointMeshes.push(jointMesh);
+
+      }
+
+
+      finger.data('boneMeshes', boneMeshes);
+      finger.data('jointMeshes', jointMeshes);
+
+    }
+  }
 
   // all units in mm
   var initScene = function () {
